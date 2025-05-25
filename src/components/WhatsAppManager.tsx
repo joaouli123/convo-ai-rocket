@@ -1,19 +1,17 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { MessageSquare, Bot, Check, Filter, Paperclip, Send, MoreHorizontal, User, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
+import { MessageSquare, Bot, Check, Paperclip, Send, MoreHorizontal, User, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 
 const WhatsAppManager = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [filterStatus, setFilterStatus] = useState('todos');
-  const [filterTag, setFilterTag] = useState('todas');
-  const [filterAI, setFilterAI] = useState('todos');
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
 
   const tags = [
@@ -76,14 +74,6 @@ const WhatsAppManager = () => {
     },
   ];
 
-  const filteredChats = chats.filter(chat => {
-    if (filterStatus !== 'todos' && chat.status !== filterStatus) return false;
-    if (filterTag !== 'todas' && chat.status !== filterTag) return false;
-    if (filterAI === 'ativa' && !chat.aiActive) return false;
-    if (filterAI === 'inativa' && chat.aiActive) return false;
-    return true;
-  });
-
   const handleSendMessage = () => {
     if (messageText.trim()) {
       console.log('Enviando mensagem:', messageText);
@@ -136,41 +126,8 @@ const WhatsAppManager = () => {
               <h3 className="font-semibold text-gray-900">Conversas</h3>
             </div>
 
-            {/* Filtros */}
-            <div className="space-y-3 mb-4 p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                <Filter className="w-4 h-4" />
-                <span>Filtros</span>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-2">
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos os status</SelectItem>
-                    <SelectItem value="lead">Novos leads</SelectItem>
-                    <SelectItem value="proposta">Proposta enviada</SelectItem>
-                    <SelectItem value="fechado">Fechados</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterAI} onValueChange={setFilterAI}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="IA" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">IA - Todos</SelectItem>
-                    <SelectItem value="ativa">IA Ativa</SelectItem>
-                    <SelectItem value="inativa">IA Inativa</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
             <div className="space-y-2 overflow-auto">
-              {filteredChats.map((chat) => {
+              {chats.map((chat) => {
                 return (
                   <div
                     key={chat.id}
