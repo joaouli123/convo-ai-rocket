@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -176,7 +175,6 @@ const WhatsAppManager = () => {
 
             <div className="space-y-2 overflow-auto">
               {filteredChats.map((chat) => {
-                const tagInfo = getTagInfo(chat.status);
                 return (
                   <div
                     key={chat.id}
@@ -194,22 +192,6 @@ const WhatsAppManager = () => {
                         <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
                         <div className="flex items-center justify-between mt-1">
                           <span className="text-xs text-gray-500">{chat.time}</span>
-                          <div className="flex items-center space-x-1">
-                            <Select value={chat.status} onValueChange={(value) => updateChatTag(chat.id, value)}>
-                              <SelectTrigger className="h-5 w-auto p-1 text-xs border-0">
-                                <Badge className={tagInfo.color}>
-                                  {tagInfo.name}
-                                </Badge>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {tags.map(tag => (
-                                  <SelectItem key={tag.id} value={tag.id}>
-                                    <Badge className={tag.color}>{tag.name}</Badge>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
                         </div>
                       </div>
                       {chat.unread > 0 && (
@@ -244,6 +226,21 @@ const WhatsAppManager = () => {
                       </button>
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-600">Online</span>
+                        {/* Seletor de etiqueta posicionado aqui */}
+                        <Select value={selectedChat.status} onValueChange={(value) => updateChatTag(selectedChat.id, value)}>
+                          <SelectTrigger className="h-6 w-auto border-0 bg-transparent p-0">
+                            <Badge className={getTagInfo(selectedChat.status).color}>
+                              {getTagInfo(selectedChat.status).name}
+                            </Badge>
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border shadow-lg z-50">
+                            {tags.map(tag => (
+                              <SelectItem key={tag.id} value={tag.id}>
+                                <Badge className={tag.color}>{tag.name}</Badge>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         {selectedChat.aiActive && (
                           <Badge className="bg-blue-100 text-blue-800">IA Ativa</Badge>
                         )}
@@ -277,6 +274,25 @@ const WhatsAppManager = () => {
                               {selectedChat.name.charAt(0)}
                             </div>
                             <h3 className="font-semibold text-lg">{selectedChat.name}</h3>
+                          </div>
+
+                          {/* Seletor de etiqueta na aba lateral */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Etiqueta</label>
+                            <Select value={selectedChat.status} onValueChange={(value) => updateChatTag(selectedChat.id, value)}>
+                              <SelectTrigger className="w-full">
+                                <Badge className={getTagInfo(selectedChat.status).color}>
+                                  {getTagInfo(selectedChat.status).name}
+                                </Badge>
+                              </SelectTrigger>
+                              <SelectContent className="bg-white border shadow-lg z-50">
+                                {tags.map(tag => (
+                                  <SelectItem key={tag.id} value={tag.id}>
+                                    <Badge className={tag.color}>{tag.name}</Badge>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           <div className="space-y-4">
@@ -338,6 +354,7 @@ const WhatsAppManager = () => {
                   </div>
                 </div>
 
+                {/* ... keep existing code (mensagens e área de envio) */}
                 <div className="flex-1 py-4 space-y-4 overflow-auto">
                   <div className="flex">
                     <div className="bg-gray-100 rounded-lg p-3 max-w-xs">
