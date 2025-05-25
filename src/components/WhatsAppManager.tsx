@@ -3,41 +3,114 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Bot, Check } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { MessageSquare, Bot, Check, Filter, Paperclip, Send, MoreHorizontal, User, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 
 const WhatsAppManager = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [messageText, setMessageText] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [filterStatus, setFilterStatus] = useState('todos');
+  const [filterTag, setFilterTag] = useState('todas');
+  const [filterAI, setFilterAI] = useState('todos');
+  const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
+
+  const tags = [
+    { id: 'lead', name: 'Lead', color: 'bg-blue-100 text-blue-800' },
+    { id: 'proposta', name: 'Proposta', color: 'bg-yellow-100 text-yellow-800' },
+    { id: 'fechado', name: 'Fechado', color: 'bg-green-100 text-green-800' },
+    { id: 'suporte', name: 'Suporte', color: 'bg-purple-100 text-purple-800' },
+    { id: 'perdido', name: 'Perdido', color: 'bg-red-100 text-red-800' },
+  ];
+
+  const messageTemplates = [
+    { id: 1, name: 'Saudação inicial', content: 'Olá! Bem-vindo(a)! Como posso ajudá-lo(a) hoje?' },
+    { id: 2, name: 'Solicitar orçamento', content: 'Ficamos felizes com seu interesse! Para enviar um orçamento personalizado, preciso de algumas informações...' },
+    { id: 3, name: 'Agradecimento', content: 'Muito obrigado(a) pelo seu tempo! Estamos aqui sempre que precisar.' },
+    { id: 4, name: 'Envio de proposta', content: 'Conforme conversamos, estou enviando nossa proposta. Quando podemos conversar sobre os próximos passos?' },
+  ];
 
   const chats = [
     {
       id: 1,
       name: 'Maria Silva',
+      phone: '(11) 99999-1234',
+      email: 'maria.silva@email.com',
       lastMessage: 'Oi, gostaria de saber mais sobre seus produtos',
       time: '14:32',
+      date: '2024-01-15',
       unread: 2,
       aiActive: true,
       status: 'lead',
+      notes: 'Cliente interessada em produtos para cabelo cacheado. Trabalha na área de beleza.',
+      address: 'São Paulo, SP',
     },
     {
       id: 2,
       name: 'João Santos',
+      phone: '(11) 99999-5678',
+      email: 'joao.santos@empresa.com',
       lastMessage: 'Perfeito, vou aguardar o orçamento',
       time: '13:45',
+      date: '2024-01-15',
       unread: 0,
       aiActive: false,
       status: 'proposta',
+      notes: 'Dono de salão. Interessado em compra em grande quantidade.',
+      address: 'Santos, SP',
     },
     {
       id: 3,
       name: 'Ana Costa',
+      phone: '(11) 99999-9012',
+      email: 'ana.costa@email.com',
       lastMessage: 'Muito obrigada pelo atendimento!',
       time: '12:10',
+      date: '2024-01-14',
       unread: 1,
       aiActive: true,
       status: 'fechado',
+      notes: 'Cliente satisfeita. Possível indicação de novos clientes.',
+      address: 'Campinas, SP',
     },
   ];
+
+  const filteredChats = chats.filter(chat => {
+    if (filterStatus !== 'todos' && chat.status !== filterStatus) return false;
+    if (filterTag !== 'todas' && chat.status !== filterTag) return false;
+    if (filterAI === 'ativa' && !chat.aiActive) return false;
+    if (filterAI === 'inativa' && chat.aiActive) return false;
+    return true;
+  });
+
+  const handleSendMessage = () => {
+    if (messageText.trim()) {
+      console.log('Enviando mensagem:', messageText);
+      setMessageText('');
+      setSelectedTemplate('');
+    }
+  };
+
+  const handleTemplateSelect = (template) => {
+    setMessageText(template.content);
+    setSelectedTemplate('');
+  };
+
+  const handleFileUpload = () => {
+    // Simular upload de arquivo
+    console.log('Abrindo seletor de arquivos...');
+  };
+
+  const updateChatTag = (chatId, newTag) => {
+    console.log(`Atualizando etiqueta do chat ${chatId} para ${newTag}`);
+    // Aqui você atualizaria o estado dos chats
+  };
+
+  const getTagInfo = (tagId) => {
+    return tags.find(tag => tag.id === tagId) || tags[0];
+  };
 
   return (
     <div className="space-y-6">
@@ -61,49 +134,93 @@ const WhatsAppManager = () => {
           </Button>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[700px]">
           <Card className="lg:col-span-1 p-4 border-0 shadow-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900">Conversas</h3>
               <Badge className="bg-green-100 text-green-800">Online</Badge>
             </div>
-            <div className="space-y-2">
-              {chats.map((chat) => (
-                <div
-                  key={chat.id}
-                  onClick={() => setSelectedChat(chat)}
-                  className="p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">{chat.name}</span>
-                        {chat.aiActive && <Bot className="w-4 h-4 text-blue-500" />}
+
+            {/* Filtros */}
+            <div className="space-y-3 mb-4 p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <Filter className="w-4 h-4" />
+                <span>Filtros</span>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-2">
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os status</SelectItem>
+                    <SelectItem value="lead">Novos leads</SelectItem>
+                    <SelectItem value="proposta">Proposta enviada</SelectItem>
+                    <SelectItem value="fechado">Fechados</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={filterAI} onValueChange={setFilterAI}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="IA" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">IA - Todos</SelectItem>
+                    <SelectItem value="ativa">IA Ativa</SelectItem>
+                    <SelectItem value="inativa">IA Inativa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2 overflow-auto">
+              {filteredChats.map((chat) => {
+                const tagInfo = getTagInfo(chat.status);
+                return (
+                  <div
+                    key={chat.id}
+                    onClick={() => setSelectedChat(chat)}
+                    className={`p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100 ${
+                      selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-gray-900">{chat.name}</span>
+                          {chat.aiActive && <Bot className="w-4 h-4 text-blue-500" />}
+                        </div>
+                        <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs text-gray-500">{chat.time}</span>
+                          <div className="flex items-center space-x-1">
+                            <Select value={chat.status} onValueChange={(value) => updateChatTag(chat.id, value)}>
+                              <SelectTrigger className="h-5 w-auto p-1 text-xs border-0">
+                                <Badge className={tagInfo.color}>
+                                  {tagInfo.name}
+                                </Badge>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {tags.map(tag => (
+                                  <SelectItem key={tag.id} value={tag.id}>
+                                    <Badge className={tag.color}>{tag.name}</Badge>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-gray-500">{chat.time}</span>
-                        <Badge
-                          className={
-                            chat.status === 'lead'
-                              ? 'bg-blue-100 text-blue-800'
-                              : chat.status === 'proposta'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-green-100 text-green-800'
-                          }
-                        >
-                          {chat.status}
-                        </Badge>
-                      </div>
+                      {chat.unread > 0 && (
+                        <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                          <span className="text-xs text-white">{chat.unread}</span>
+                        </div>
+                      )}
                     </div>
-                    {chat.unread > 0 && (
-                      <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-white">{chat.unread}</span>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
 
@@ -112,11 +229,19 @@ const WhatsAppManager = () => {
               <div className="h-full flex flex-col">
                 <div className="flex items-center justify-between pb-4 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center text-white font-medium">
+                    <button 
+                      onClick={() => setIsContactSheetOpen(true)}
+                      className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center text-white font-medium hover:shadow-md transition-shadow"
+                    >
                       {selectedChat.name.charAt(0)}
-                    </div>
+                    </button>
                     <div>
-                      <h4 className="font-medium text-gray-900">{selectedChat.name}</h4>
+                      <button 
+                        onClick={() => setIsContactSheetOpen(true)}
+                        className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                      >
+                        {selectedChat.name}
+                      </button>
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-600">Online</span>
                         {selectedChat.aiActive && (
@@ -132,6 +257,84 @@ const WhatsAppManager = () => {
                     <Button variant="outline" size="sm">
                       Encerrar Atendimento
                     </Button>
+                    <Sheet open={isContactSheetOpen} onOpenChange={setIsContactSheetOpen}>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="right" className="w-96">
+                        <SheetHeader>
+                          <SheetTitle className="flex items-center space-x-2">
+                            <User className="w-5 h-5" />
+                            <span>Informações do Contato</span>
+                          </SheetTitle>
+                        </SheetHeader>
+                        
+                        <div className="space-y-6 mt-6">
+                          <div className="text-center">
+                            <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3">
+                              {selectedChat.name.charAt(0)}
+                            </div>
+                            <h3 className="font-semibold text-lg">{selectedChat.name}</h3>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div className="flex items-center space-x-3">
+                              <Phone className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm">{selectedChat.phone}</span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <Mail className="w-4 h-4 text-gray-500" />
+                              <input 
+                                type="email" 
+                                defaultValue={selectedChat.email}
+                                className="text-sm border border-gray-300 rounded px-2 py-1 flex-1"
+                                placeholder="Email do contato"
+                              />
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <MapPin className="w-4 h-4 text-gray-500" />
+                              <input 
+                                type="text" 
+                                defaultValue={selectedChat.address}
+                                className="text-sm border border-gray-300 rounded px-2 py-1 flex-1"
+                                placeholder="Endereço"
+                              />
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <Calendar className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm">Última conversa: {selectedChat.date}</span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
+                              <FileText className="w-4 h-4" />
+                              <span>Anotações</span>
+                            </label>
+                            <textarea
+                              defaultValue={selectedChat.notes}
+                              className="w-full border border-gray-300 rounded-lg p-3 text-sm resize-none"
+                              rows={4}
+                              placeholder="Adicione suas anotações sobre este contato..."
+                            />
+                          </div>
+
+                          <div className="flex space-x-2">
+                            <Button className="flex-1" onClick={() => setIsContactSheetOpen(false)}>
+                              Salvar
+                            </Button>
+                            <Button variant="outline" onClick={() => setIsContactSheetOpen(false)}>
+                              Cancelar
+                            </Button>
+                          </div>
+                        </div>
+                      </SheetContent>
+                    </Sheet>
                   </div>
                 </div>
 
@@ -153,15 +356,49 @@ const WhatsAppManager = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-200 space-y-3">
+                  {/* Seletor de mensagens prontas */}
                   <div className="flex space-x-2">
+                    <Select value={selectedTemplate} onValueChange={(value) => {
+                      const template = messageTemplates.find(t => t.id.toString() === value);
+                      if (template) handleTemplateSelect(template);
+                    }}>
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Mensagens prontas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {messageTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id.toString()}>
+                            {template.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Campo de mensagem e botões */}
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleFileUpload}
+                      className="px-3"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                    </Button>
                     <input
                       type="text"
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                       placeholder="Digite sua mensagem..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <Button className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600">
-                      Enviar
+                    <Button 
+                      onClick={handleSendMessage}
+                      className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600"
+                    >
+                      <Send className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
