@@ -1,5 +1,5 @@
 
-const API_BASE_URL = 'http://localhost:3001/api/whatsapp';
+const API_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':3001/api/whatsapp';
 
 export interface WhatsAppConnection {
   id: string;

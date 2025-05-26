@@ -15,6 +15,11 @@ externalPort = 3001
 localPort = 8080
 externalPort = 80
 
+[[ports]]
+localPort = 3001
+externalPort = 3001
+exposeLocalhost = true
+
 [workflows]
 runButton = "Full Stack"
 
