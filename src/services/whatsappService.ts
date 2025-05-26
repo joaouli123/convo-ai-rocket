@@ -1,144 +1,205 @@
 
-interface WhatsAppSession {
+const API_BASE_URL = 'http://localhost:3001/api/whatsapp';
+
+export interface WhatsAppConnection {
   id: string;
-  clientId: string;
-  isConnected: boolean;
+  name: string;
+  status: 'connecting' | 'connected' | 'disconnected' | 'error';
+  phoneNumber?: string;
+  createdAt: Date;
   qrCode?: string;
-  phone?: string;
-  lastSeen?: Date;
 }
 
 class WhatsAppService {
-  private sessions: Map<string, WhatsAppSession> = new Map();
-  private eventListeners: Map<string, Function[]> = new Map();
+  private connections: Map<string, WhatsAppConnection> = new Map();
 
-  // Criar nova sessão
-  createSession(connectionId: string): WhatsAppSession {
-    const session: WhatsAppSession = {
-      id: connectionId,
-      clientId: `client-${connectionId}-${Date.now()}`,
-      isConnected: false,
-    };
-
-    this.sessions.set(connectionId, session);
-    return session;
-  }
-
-  // Gerar QR Code para sessão
-  async generateQRCode(connectionId: string): Promise<string> {
-    const session = this.sessions.get(connectionId);
-    if (!session) {
-      throw new Error('Sessão não encontrada');
-    }
-
-    // Simular geração de QR Code do WhatsApp Web
-    const qrData = {
-      clientId: session.clientId,
-      timestamp: Date.now(),
-      server: 'web.whatsapp.com',
-      ref: Math.random().toString(36).substring(7)
-    };
-
-    const qrString = JSON.stringify(qrData);
-    session.qrCode = qrString;
+  async createConnection(name: string): Promise<string> {
+    const connectionId = `wa_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    this.sessions.set(connectionId, session);
-    this.emit('qr', { connectionId, qrCode: qrString });
+    try {
+      const response = await fetch(`${API_BASE_URL}/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ connectionId, name }),
+      });
 
-    // Simular expiração do QR em 20 segundos
-    setTimeout(() => {
-      if (session && !session.isConnected) {
-        this.generateQRCode(connectionId);
+      if (!response.ok) {
+        throw new Error('Erro ao criar conexão');
       }
-    }, 20000);
 
-    return qrString;
-  }
+      const data = await response.json();
+      
+      // Adicionar conexão local
+      this.connections.set(connectionId, {
+        id: connectionId,
+        name,
+        status: 'connecting',
+        createdAt: new Date(),
+      });
 
-  // Simular conexão
-  simulateConnection(connectionId: string): void {
-    const session = this.sessions.get(connectionId);
-    if (!session) return;
-
-    session.isConnected = true;
-    session.phone = `(11) 99${Math.floor(Math.random() * 1000)}-${Math.floor(Math.random() * 9999)}`;
-    session.lastSeen = new Date();
-    session.qrCode = undefined;
-
-    this.sessions.set(connectionId, session);
-    this.emit('connected', { connectionId, session });
-  }
-
-  // Desconectar sessão
-  disconnect(connectionId: string): void {
-    const session = this.sessions.get(connectionId);
-    if (!session) return;
-
-    session.isConnected = false;
-    session.qrCode = undefined;
-    session.lastSeen = new Date();
-
-    this.sessions.set(connectionId, session);
-    this.emit('disconnected', { connectionId });
-  }
-
-  // Remover sessão
-  removeSession(connectionId: string): void {
-    this.sessions.delete(connectionId);
-    this.eventListeners.delete(connectionId);
-    this.emit('removed', { connectionId });
-  }
-
-  // Obter sessão
-  getSession(connectionId: string): WhatsAppSession | undefined {
-    return this.sessions.get(connectionId);
-  }
-
-  // Listar todas as sessões
-  getAllSessions(): WhatsAppSession[] {
-    return Array.from(this.sessions.values());
-  }
-
-  // Sistema de eventos
-  on(event: string, callback: Function): void {
-    if (!this.eventListeners.has(event)) {
-      this.eventListeners.set(event, []);
-    }
-    this.eventListeners.get(event)?.push(callback);
-  }
-
-  private emit(event: string, data: any): void {
-    const listeners = this.eventListeners.get(event);
-    if (listeners) {
-      listeners.forEach(callback => callback(data));
+      // Começar a monitorar QR Code
+      this.pollQrCode(connectionId);
+      
+      return connectionId;
+    } catch (error) {
+      console.error('Erro ao criar conexão:', error);
+      throw error;
     }
   }
 
-  // Enviar mensagem (simulado)
+  async getConnections(): Promise<WhatsAppConnection[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/connections`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao buscar conexões');
+      }
+
+      const connections = await response.json();
+      
+      // Atualizar cache local
+      connections.forEach((conn: any) => {
+        this.connections.set(conn.id, {
+          id: conn.id,
+          name: conn.name,
+          status: conn.status,
+          phoneNumber: conn.phoneNumber,
+          createdAt: new Date(conn.createdAt),
+        });
+      });
+
+      return Array.from(this.connections.values());
+    } catch (error) {
+      console.error('Erro ao buscar conexões:', error);
+      return Array.from(this.connections.values());
+    }
+  }
+
+  async getConnectionStatus(connectionId: string): Promise<WhatsAppConnection | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/status/${connectionId}`);
+      
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      
+      const connection: WhatsAppConnection = {
+        id: data.connectionId,
+        name: data.name,
+        status: data.status,
+        phoneNumber: data.phoneNumber,
+        createdAt: new Date(),
+      };
+
+      this.connections.set(connectionId, connection);
+      
+      return connection;
+    } catch (error) {
+      console.error('Erro ao buscar status:', error);
+      return null;
+    }
+  }
+
+  async getQrCode(connectionId: string): Promise<string | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/qr/${connectionId}`);
+      
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      return data.qrCode;
+    } catch (error) {
+      console.error('Erro ao buscar QR Code:', error);
+      return null;
+    }
+  }
+
   async sendMessage(connectionId: string, to: string, message: string): Promise<boolean> {
-    const session = this.sessions.get(connectionId);
-    if (!session || !session.isConnected) {
-      throw new Error('Sessão não conectada');
-    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/send/${connectionId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ to, message }),
+      });
 
-    // Simular envio de mensagem
-    console.log(`Enviando mensagem via ${connectionId} para ${to}: ${message}`);
-    
-    // Simular delay de envio
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    this.emit('message_sent', { connectionId, to, message, timestamp: new Date() });
-    return true;
+      return response.ok;
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error);
+      return false;
+    }
   }
 
-  // Verificar status de conexão
-  isConnected(connectionId: string): boolean {
-    const session = this.sessions.get(connectionId);
-    return session?.isConnected || false;
+  async disconnectConnection(connectionId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/disconnect/${connectionId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        this.connections.delete(connectionId);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Erro ao desconectar:', error);
+      return false;
+    }
+  }
+
+  private async pollQrCode(connectionId: string) {
+    const maxAttempts = 60; // 5 minutos
+    let attempts = 0;
+
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        console.log('Timeout ao aguardar QR Code');
+        return;
+      }
+
+      const connection = this.connections.get(connectionId);
+      if (!connection || connection.status === 'connected') {
+        return;
+      }
+
+      try {
+        const qrCode = await this.getQrCode(connectionId);
+        if (qrCode) {
+          connection.qrCode = qrCode;
+          this.connections.set(connectionId, connection);
+        }
+
+        // Verificar status
+        const status = await this.getConnectionStatus(connectionId);
+        if (status?.status === 'connected') {
+          const updatedConnection = this.connections.get(connectionId);
+          if (updatedConnection) {
+            updatedConnection.status = 'connected';
+            updatedConnection.qrCode = undefined;
+            this.connections.set(connectionId, updatedConnection);
+          }
+          return;
+        }
+
+        attempts++;
+        setTimeout(poll, 5000); // Poll a cada 5 segundos
+      } catch (error) {
+        console.error('Erro no polling:', error);
+        attempts++;
+        setTimeout(poll, 5000);
+      }
+    };
+
+    poll();
   }
 }
 
-// Singleton instance
 export const whatsappService = new WhatsAppService();
-
-export default WhatsAppService;
