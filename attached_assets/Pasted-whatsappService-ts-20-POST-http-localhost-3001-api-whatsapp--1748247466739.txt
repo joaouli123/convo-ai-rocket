@@ -1,0 +1,87 @@
+whatsappService.ts:20 
+            
+            
+           POST http://localhost:3001/api/whatsapp/create net::ERR_CONNECTION_REFUSED
+createConnection @ whatsappService.ts:20
+handleCreateConnection @ WhatsAppConnections.tsx:44
+callCallback2 @ chunk-R6S4VRB5.js?v=a205dc49:3674
+invokeGuardedCallbackDev @ chunk-R6S4VRB5.js?v=a205dc49:3699
+invokeGuardedCallback @ chunk-R6S4VRB5.js?v=a205dc49:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-R6S4VRB5.js?v=a205dc49:3736
+executeDispatch @ chunk-R6S4VRB5.js?v=a205dc49:7014
+processDispatchQueueItemsInOrder @ chunk-R6S4VRB5.js?v=a205dc49:7034
+processDispatchQueue @ chunk-R6S4VRB5.js?v=a205dc49:7043
+dispatchEventsForPlugins @ chunk-R6S4VRB5.js?v=a205dc49:7051
+(anonymous) @ chunk-R6S4VRB5.js?v=a205dc49:7174
+batchedUpdates$1 @ chunk-R6S4VRB5.js?v=a205dc49:18913
+batchedUpdates @ chunk-R6S4VRB5.js?v=a205dc49:3579
+dispatchEventForPluginEventSystem @ chunk-R6S4VRB5.js?v=a205dc49:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-R6S4VRB5.js?v=a205dc49:5478
+dispatchEvent @ chunk-R6S4VRB5.js?v=a205dc49:5472
+dispatchDiscreteEvent @ chunk-R6S4VRB5.js?v=a205dc49:5449
+whatsappService.ts:47 Erro ao criar conexão: TypeError: Failed to fetch
+    at WhatsAppService.createConnection (whatsappService.ts:20:30)
+    at handleCreateConnection (WhatsAppConnections.tsx:44:29)
+    at HTMLUnknownElement.callCallback2 (chunk-R6S4VRB5.js?v=a205dc49:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-R6S4VRB5.js?v=a205dc49:3699:24)
+    at invokeGuardedCallback (chunk-R6S4VRB5.js?v=a205dc49:3733:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-R6S4VRB5.js?v=a205dc49:3736:33)
+    at executeDispatch (chunk-R6S4VRB5.js?v=a205dc49:7014:11)
+    at processDispatchQueueItemsInOrder (chunk-R6S4VRB5.js?v=a205dc49:7034:15)
+    at processDispatchQueue (chunk-R6S4VRB5.js?v=a205dc49:7043:13)
+    at dispatchEventsForPlugins (chunk-R6S4VRB5.js?v=a205dc49:7051:11)
+createConnection @ whatsappService.ts:47
+await in createConnection
+handleCreateConnection @ WhatsAppConnections.tsx:44
+callCallback2 @ chunk-R6S4VRB5.js?v=a205dc49:3674
+invokeGuardedCallbackDev @ chunk-R6S4VRB5.js?v=a205dc49:3699
+invokeGuardedCallback @ chunk-R6S4VRB5.js?v=a205dc49:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-R6S4VRB5.js?v=a205dc49:3736
+executeDispatch @ chunk-R6S4VRB5.js?v=a205dc49:7014
+processDispatchQueueItemsInOrder @ chunk-R6S4VRB5.js?v=a205dc49:7034
+processDispatchQueue @ chunk-R6S4VRB5.js?v=a205dc49:7043
+dispatchEventsForPlugins @ chunk-R6S4VRB5.js?v=a205dc49:7051
+(anonymous) @ chunk-R6S4VRB5.js?v=a205dc49:7174
+batchedUpdates$1 @ chunk-R6S4VRB5.js?v=a205dc49:18913
+batchedUpdates @ chunk-R6S4VRB5.js?v=a205dc49:3579
+dispatchEventForPluginEventSystem @ chunk-R6S4VRB5.js?v=a205dc49:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-R6S4VRB5.js?v=a205dc49:5478
+dispatchEvent @ chunk-R6S4VRB5.js?v=a205dc49:5472
+dispatchDiscreteEvent @ chunk-R6S4VRB5.js?v=a205dc49:5449
+WhatsAppConnections.tsx:50 Erro ao criar conexão: TypeError: Failed to fetch
+    at WhatsAppService.createConnection (whatsappService.ts:20:30)
+    at handleCreateConnection (WhatsAppConnections.tsx:44:29)
+    at HTMLUnknownElement.callCallback2 (chunk-R6S4VRB5.js?v=a205dc49:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-R6S4VRB5.js?v=a205dc49:3699:24)
+    at invokeGuardedCallback (chunk-R6S4VRB5.js?v=a205dc49:3733:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-R6S4VRB5.js?v=a205dc49:3736:33)
+    at executeDispatch (chunk-R6S4VRB5.js?v=a205dc49:7014:11)
+    at processDispatchQueueItemsInOrder (chunk-R6S4VRB5.js?v=a205dc49:7034:15)
+    at processDispatchQueue (chunk-R6S4VRB5.js?v=a205dc49:7043:13)
+    at dispatchEventsForPlugins (chunk-R6S4VRB5.js?v=a205dc49:7051:11)
+handleCreateConnection @ WhatsAppConnections.tsx:50
+await in handleCreateConnection
+callCallback2 @ chunk-R6S4VRB5.js?v=a205dc49:3674
+invokeGuardedCallbackDev @ chunk-R6S4VRB5.js?v=a205dc49:3699
+invokeGuardedCallback @ chunk-R6S4VRB5.js?v=a205dc49:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-R6S4VRB5.js?v=a205dc49:3736
+executeDispatch @ chunk-R6S4VRB5.js?v=a205dc49:7014
+processDispatchQueueItemsInOrder @ chunk-R6S4VRB5.js?v=a205dc49:7034
+processDispatchQueue @ chunk-R6S4VRB5.js?v=a205dc49:7043
+dispatchEventsForPlugins @ chunk-R6S4VRB5.js?v=a205dc49:7051
+(anonymous) @ chunk-R6S4VRB5.js?v=a205dc49:7174
+batchedUpdates$1 @ chunk-R6S4VRB5.js?v=a205dc49:18913
+batchedUpdates @ chunk-R6S4VRB5.js?v=a205dc49:3579
+dispatchEventForPluginEventSystem @ chunk-R6S4VRB5.js?v=a205dc49:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-R6S4VRB5.js?v=a205dc49:5478
+dispatchEvent @ chunk-R6S4VRB5.js?v=a205dc49:5472
+dispatchDiscreteEvent @ chunk-R6S4VRB5.js?v=a205dc49:5449
+whatsappService.ts:54 
+            
+            
+           GET http://localhost:3001/api/whatsapp/connections net::ERR_CONNECTION_REFUSED
+getConnections @ whatsappService.ts:54
+loadConnections @ WhatsAppConnections.tsx:28
+whatsappService.ts:75 Erro ao buscar conexões: TypeError: Failed to fetch
+    at WhatsAppService.getConnections (whatsappService.ts:54:30)
+    at loadConnections (WhatsAppConnections.tsx:28:42)
