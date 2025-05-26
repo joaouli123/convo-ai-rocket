@@ -1,0 +1,103 @@
+Access to fetch at 'https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev:3001/api/whatsapp/qr/wa_1748247593888_kpirso2hf' from origin 'https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+whatsappService.ts:109 
+            
+            
+           GET https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev:3001/api/whatsapp/qr/wa_1748247593888_kpirso2hf net::ERR_FAILED 502 (Bad Gateway)
+getQrCode @ whatsappService.ts:109
+fetchQrCode @ WhatsAppConnections.tsx:94
+setInterval
+(anonymous) @ WhatsAppConnections.tsx:113
+commitHookEffectListMount @ chunk-R6S4VRB5.js?v=b2d95603:16915
+commitPassiveMountOnFiber @ chunk-R6S4VRB5.js?v=b2d95603:18156
+commitPassiveMountEffects_complete @ chunk-R6S4VRB5.js?v=b2d95603:18129
+commitPassiveMountEffects_begin @ chunk-R6S4VRB5.js?v=b2d95603:18119
+commitPassiveMountEffects @ chunk-R6S4VRB5.js?v=b2d95603:18109
+flushPassiveEffectsImpl @ chunk-R6S4VRB5.js?v=b2d95603:19490
+flushPassiveEffects @ chunk-R6S4VRB5.js?v=b2d95603:19447
+performSyncWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18868
+flushSyncCallbacks @ chunk-R6S4VRB5.js?v=b2d95603:9119
+commitRootImpl @ chunk-R6S4VRB5.js?v=b2d95603:19432
+commitRoot @ chunk-R6S4VRB5.js?v=b2d95603:19277
+finishConcurrentRender @ chunk-R6S4VRB5.js?v=b2d95603:18805
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18718
+workLoop @ chunk-R6S4VRB5.js?v=b2d95603:197
+flushWork @ chunk-R6S4VRB5.js?v=b2d95603:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=b2d95603:384
+whatsappService.ts:118 Erro ao buscar QR Code: TypeError: Failed to fetch
+    at WhatsAppService.getQrCode (whatsappService.ts:109:30)
+    at fetchQrCode (WhatsAppConnections.tsx:94:44)
+getQrCode @ whatsappService.ts:118
+await in getQrCode
+fetchQrCode @ WhatsAppConnections.tsx:94
+setInterval
+(anonymous) @ WhatsAppConnections.tsx:113
+commitHookEffectListMount @ chunk-R6S4VRB5.js?v=b2d95603:16915
+commitPassiveMountOnFiber @ chunk-R6S4VRB5.js?v=b2d95603:18156
+commitPassiveMountEffects_complete @ chunk-R6S4VRB5.js?v=b2d95603:18129
+commitPassiveMountEffects_begin @ chunk-R6S4VRB5.js?v=b2d95603:18119
+commitPassiveMountEffects @ chunk-R6S4VRB5.js?v=b2d95603:18109
+flushPassiveEffectsImpl @ chunk-R6S4VRB5.js?v=b2d95603:19490
+flushPassiveEffects @ chunk-R6S4VRB5.js?v=b2d95603:19447
+performSyncWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18868
+flushSyncCallbacks @ chunk-R6S4VRB5.js?v=b2d95603:9119
+commitRootImpl @ chunk-R6S4VRB5.js?v=b2d95603:19432
+commitRoot @ chunk-R6S4VRB5.js?v=b2d95603:19277
+finishConcurrentRender @ chunk-R6S4VRB5.js?v=b2d95603:18805
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18718
+workLoop @ chunk-R6S4VRB5.js?v=b2d95603:197
+flushWork @ chunk-R6S4VRB5.js?v=b2d95603:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=b2d95603:384
+17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev/:1 Access to fetch at 'https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev:3001/api/whatsapp/status/wa_1748247593888_kpirso2hf' from origin 'https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+whatsappService.ts:82 
+            
+            
+           GET https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev:3001/api/whatsapp/status/wa_1748247593888_kpirso2hf net::ERR_FAILED 502 (Bad Gateway)
+getConnectionStatus @ whatsappService.ts:82
+fetchQrCode @ WhatsAppConnections.tsx:101
+setInterval
+(anonymous) @ WhatsAppConnections.tsx:113
+commitHookEffectListMount @ chunk-R6S4VRB5.js?v=b2d95603:16915
+commitPassiveMountOnFiber @ chunk-R6S4VRB5.js?v=b2d95603:18156
+commitPassiveMountEffects_complete @ chunk-R6S4VRB5.js?v=b2d95603:18129
+commitPassiveMountEffects_begin @ chunk-R6S4VRB5.js?v=b2d95603:18119
+commitPassiveMountEffects @ chunk-R6S4VRB5.js?v=b2d95603:18109
+flushPassiveEffectsImpl @ chunk-R6S4VRB5.js?v=b2d95603:19490
+flushPassiveEffects @ chunk-R6S4VRB5.js?v=b2d95603:19447
+performSyncWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18868
+flushSyncCallbacks @ chunk-R6S4VRB5.js?v=b2d95603:9119
+commitRootImpl @ chunk-R6S4VRB5.js?v=b2d95603:19432
+commitRoot @ chunk-R6S4VRB5.js?v=b2d95603:19277
+finishConcurrentRender @ chunk-R6S4VRB5.js?v=b2d95603:18805
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18718
+workLoop @ chunk-R6S4VRB5.js?v=b2d95603:197
+flushWork @ chunk-R6S4VRB5.js?v=b2d95603:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=b2d95603:384
+whatsappService.ts:102 Erro ao buscar status: TypeError: Failed to fetch
+    at WhatsAppService.getConnectionStatus (whatsappService.ts:82:30)
+    at fetchQrCode (WhatsAppConnections.tsx:101:48)
+getConnectionStatus @ whatsappService.ts:102
+await in getConnectionStatus
+fetchQrCode @ WhatsAppConnections.tsx:101
+setInterval
+(anonymous) @ WhatsAppConnections.tsx:113
+commitHookEffectListMount @ chunk-R6S4VRB5.js?v=b2d95603:16915
+commitPassiveMountOnFiber @ chunk-R6S4VRB5.js?v=b2d95603:18156
+commitPassiveMountEffects_complete @ chunk-R6S4VRB5.js?v=b2d95603:18129
+commitPassiveMountEffects_begin @ chunk-R6S4VRB5.js?v=b2d95603:18119
+commitPassiveMountEffects @ chunk-R6S4VRB5.js?v=b2d95603:18109
+flushPassiveEffectsImpl @ chunk-R6S4VRB5.js?v=b2d95603:19490
+flushPassiveEffects @ chunk-R6S4VRB5.js?v=b2d95603:19447
+performSyncWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18868
+flushSyncCallbacks @ chunk-R6S4VRB5.js?v=b2d95603:9119
+commitRootImpl @ chunk-R6S4VRB5.js?v=b2d95603:19432
+commitRoot @ chunk-R6S4VRB5.js?v=b2d95603:19277
+finishConcurrentRender @ chunk-R6S4VRB5.js?v=b2d95603:18805
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=b2d95603:18718
+workLoop @ chunk-R6S4VRB5.js?v=b2d95603:197
+flushWork @ chunk-R6S4VRB5.js?v=b2d95603:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=b2d95603:384
+17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev/:1 Access to fetch at 'https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev:3001/api/whatsapp/qr/wa_1748247593888_kpirso2hf' from origin 'https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+whatsappService.ts:109 
+            
+            
+           GET https://17531930-1f21-4413-a4b8-be95963b4ac8-00-22v1jum0mvsns.worf.replit.dev:3001/api/whatsapp/qr/wa_1748247593888_kpirso2hf net::ERR_FAILED 502 (Bad Gateway)
