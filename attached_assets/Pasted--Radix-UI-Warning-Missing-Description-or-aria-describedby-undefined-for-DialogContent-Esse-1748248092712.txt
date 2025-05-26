@@ -1,0 +1,92 @@
+⚠️ [Radix UI] Warning: Missing Description or aria-describedby={undefined} for {DialogContent}.
+Esse é um alerta de acessibilidade, não um erro crítico. O DialogContent do Radix UI espera um Description para acessibilidade, mas ele não é obrigatório para funcionamento.
+
+✅ Solução:
+Adicione um DialogDescription dentro do seu DialogContent. Exemplo:
+
+tsx
+Copiar
+Editar
+<DialogContent>
+  <DialogTitle>Conectar WhatsApp</DialogTitle>
+  <DialogDescription>
+    Escaneie o QR Code com seu WhatsApp para finalizar a conexão.
+  </DialogDescription>
+  {/* Outros conteúdos */}
+</DialogContent>
+Se não quiser descrição, pode usar:
+
+tsx
+Copiar
+Editar
+<DialogContent aria-describedby="">
+Só que isso não é recomendado do ponto de vista de acessibilidade.
+
+🔥 [Backend] Erro 500 (Internal Server Error) e 404 (Not Found) no QR Code
+🔍 Causas Prováveis:
+Erro no backend ao criar conexão (/api/whatsapp/create retorna 500)
+→ Pode ser problema na sua API (Replit) por:
+
+Problema na conexão com o WhatsApp Web API (por exemplo, Baileys, Venom, WPPConnect ou outro que você esteja usando).
+
+API offline ou com algum erro interno.
+
+WebSocket ou sessão não inicializada corretamente.
+
+QR Code 404
+→ Isso geralmente acontece quando:
+
+A sessão não foi criada corretamente (conexão falhou antes).
+
+O ID da sessão wa_1748247975641_723kfg1ul não existe no backend.
+
+Timeout na criação do QR Code.
+
+🚑 Passos para resolver:
+👉 Verifique os logs no backend:
+Veja se aparece algum erro específico no console do Replit.
+
+Cheque se o servidor está de fato rodando na porta 3001.
+
+👉 Confirme se a API está online:
+Teste manualmente pelo navegador:
+https://seuendpoint/api/whatsapp/status (se tiver essa rota).
+
+👉 Valide a função createConnection no backend:
+Verifique se ela está tentando abrir uma nova sessão e se está tratando erros como:
+
+Session já existente.
+
+Erro na conexão com o WhatsApp.
+
+Falha na leitura/escrita de arquivos de sessão (se estiver salvando JSON localmente).
+
+👉 Cheque se o servidor tem suporte a WebSockets ou eventos, já que QR Code geralmente depende disso para atualizar.
+✅ Checklist de Soluções rápidas:
+Reinicie o servidor no Replit.
+
+Verifique se as dependências estão atualizadas (npm install e reinicia).
+
+Se usa Baileys, WPPConnect ou Venom, veja se a API deles mudou ou se precisam de atualização.
+
+Confirme se o frontend está passando corretamente o ID da sessão (sessionId) na criação e leitura do QR.
+
+No backend, trate erros assim:
+
+js
+Copiar
+Editar
+app.post('/api/whatsapp/create', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID is required' });
+    }
+
+    const session = await createWhatsAppSession(sessionId);
+    res.status(200).json({ message: 'Session created', session });
+  } catch (error) {
+    console.error('Erro ao criar sessão:', error);
+    res.status(500).json({ error: 'Erro ao criar sessão' });
+  }
+});
