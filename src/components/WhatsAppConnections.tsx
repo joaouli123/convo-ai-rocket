@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageSquare, Plus, Trash2, QrCode, Smartphone, User, Users } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, QrCode, Smartphone, User, Users, RefreshCw } from 'lucide-react';
+import QRCodeCanvas from 'qrcode';
 
 interface Connection {
   id: number;
@@ -12,9 +13,10 @@ interface Connection {
   phone: string;
   isConnected: boolean;
   qrCode: string;
-  status: string;
+  status: 'connecting' | 'connected' | 'disconnected' | 'qr_ready';
   attendantId?: number;
   departmentId?: number;
+  qrCodeDataUrl?: string;
 }
 
 const WhatsAppConnections = () => {
@@ -33,7 +35,62 @@ const WhatsAppConnections = () => {
     { id: 2, name: 'Suporte', color: 'bg-green-100 text-green-800' }
   ];
 
-  const addNewConnection = () => {
+  // Gerar QR Code real
+  const generateQRCode = async (connectionId: number) => {
+    try {
+      // Simular dados de sessão WhatsApp Web
+      const sessionData = {
+        clientId: `whatsapp-client-${connectionId}`,
+        timestamp: Date.now(),
+        serverId: Math.random().toString(36).substring(7)
+      };
+      
+      const qrData = JSON.stringify(sessionData);
+      const qrCodeDataUrl = await QRCodeCanvas.toDataURL(qrData, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+
+      setConnections(prevConnections => 
+        prevConnections.map(conn => 
+          conn.id === connectionId 
+            ? { ...conn, qrCodeDataUrl, status: 'qr_ready' as const }
+            : conn
+        )
+      );
+
+      // Simular tempo para conexão automática (em ambiente real, isso seria feito via WebSocket)
+      setTimeout(() => {
+        simulateWhatsAppConnection(connectionId);
+      }, 10000); // 10 segundos
+
+    } catch (error) {
+      console.error('Erro ao gerar QR Code:', error);
+    }
+  };
+
+  // Simular conexão WhatsApp após scan do QR
+  const simulateWhatsAppConnection = (connectionId: number) => {
+    setConnections(prevConnections => 
+      prevConnections.map(conn => 
+        conn.id === connectionId 
+          ? { 
+              ...conn, 
+              isConnected: true, 
+              status: 'connected' as const, 
+              phone: '(11) 99999-' + Math.floor(Math.random() * 9999),
+              qrCodeDataUrl: undefined
+            }
+          : conn
+      )
+    );
+  };
+
+  const addNewConnection = async () => {
     if (newConnectionName.trim()) {
       const newConnection: Connection = {
         id: Date.now(),
@@ -43,9 +100,15 @@ const WhatsAppConnections = () => {
         qrCode: `qr-${Date.now()}`,
         status: 'connecting'
       };
+      
       setConnections([...connections, newConnection]);
       setNewConnectionName('');
       setShowConnectionModal(false);
+      
+      // Gerar QR Code automaticamente após criar conexão
+      setTimeout(() => {
+        generateQRCode(newConnection.id);
+      }, 1000);
     }
   };
 
@@ -53,12 +116,18 @@ const WhatsAppConnections = () => {
     setConnections(connections.filter(conn => conn.id !== connectionId));
   };
 
-  const connectWhatsApp = (connectionId: number) => {
-    setConnections(connections.map(conn => 
-      conn.id === connectionId 
-        ? { ...conn, isConnected: true, status: 'connected', phone: '(11) 99999-' + Math.floor(Math.random() * 9999) }
-        : conn
-    ));
+  const refreshQRCode = (connectionId: number) => {
+    setConnections(prevConnections => 
+      prevConnections.map(conn => 
+        conn.id === connectionId 
+          ? { ...conn, status: 'connecting' as const, qrCodeDataUrl: undefined }
+          : conn
+      )
+    );
+    
+    setTimeout(() => {
+      generateQRCode(connectionId);
+    }, 1000);
   };
 
   const updateConnectionAttendant = (connectionId: number, attendantId: number) => {
@@ -76,6 +145,21 @@ const WhatsAppConnections = () => {
 
   const getDepartmentInfo = (departmentId?: number) => {
     return departments.find(dept => dept.id === departmentId);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'connected':
+        return <Badge className="bg-green-100 text-green-800">Conectado</Badge>;
+      case 'connecting':
+        return <Badge className="bg-yellow-100 text-yellow-800">Conectando...</Badge>;
+      case 'qr_ready':
+        return <Badge className="bg-blue-100 text-blue-800">QR Code Pronto</Badge>;
+      case 'disconnected':
+        return <Badge className="bg-red-100 text-red-800">Desconectado</Badge>;
+      default:
+        return <Badge className="bg-gray-100 text-gray-800">Aguardando</Badge>;
+    }
   };
 
   return (
@@ -109,20 +193,35 @@ const WhatsAppConnections = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium text-gray-900">{connection.name}</h4>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeConnection(connection.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center space-x-2">
+                      {!connection.isConnected && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => refreshQRCode(connection.id)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeConnection(connection.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    {getStatusBadge(connection.status)}
                   </div>
 
                   {connection.isConnected ? (
                     <div className="space-y-4">
                       <div className="text-center">
-                        <Badge className="bg-green-100 text-green-800 mb-2">Conectado</Badge>
                         <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
                           <Smartphone className="w-4 h-4" />
                           <span>{connection.phone}</span>
@@ -174,21 +273,41 @@ const WhatsAppConnections = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {/* QR Code mais visível e robusto */}
+                      {/* QR Code Display */}
                       <div className="bg-white border-4 border-gray-200 rounded-xl p-6 shadow-inner">
                         <div className="w-48 h-48 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center mx-auto">
-                          <div className="text-center">
-                            <QrCode className="w-16 h-16 mx-auto mb-3 text-gray-400" />
-                            <div className="text-xs text-gray-500 space-y-1">
-                              <p className="font-medium">QR Code para Conexão</p>
-                              <p>Escaneie com o WhatsApp</p>
+                          {connection.qrCodeDataUrl ? (
+                            <div className="text-center">
+                              <img 
+                                src={connection.qrCodeDataUrl} 
+                                alt="QR Code WhatsApp" 
+                                className="w-40 h-40 mx-auto rounded-lg"
+                              />
+                              <p className="text-xs text-gray-500 mt-2">
+                                Escaneie com o WhatsApp
+                              </p>
                             </div>
-                          </div>
+                          ) : connection.status === 'connecting' ? (
+                            <div className="text-center">
+                              <RefreshCw className="w-8 h-8 mx-auto mb-3 text-gray-400 animate-spin" />
+                              <div className="text-xs text-gray-500 space-y-1">
+                                <p className="font-medium">Gerando QR Code...</p>
+                                <p>Aguarde um momento</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center">
+                              <QrCode className="w-16 h-16 mx-auto mb-3 text-gray-400" />
+                              <div className="text-xs text-gray-500 space-y-1">
+                                <p className="font-medium">QR Code para Conexão</p>
+                                <p>Aguardando geração</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
                       <div className="text-center space-y-3">
-                        <Badge className="bg-yellow-100 text-yellow-800">Aguardando Conexão</Badge>
                         <div className="space-y-2">
                           <p className="text-sm text-gray-600 font-medium">Como conectar:</p>
                           <ol className="text-xs text-gray-500 space-y-1 text-left">
@@ -198,12 +317,23 @@ const WhatsAppConnections = () => {
                             <li>4. Escaneie o QR Code acima</li>
                           </ol>
                         </div>
+                        
+                        {connection.status === 'qr_ready' && (
+                          <div className="bg-blue-50 p-3 rounded-lg">
+                            <p className="text-xs text-blue-700">
+                              QR Code será válido por 10 segundos. 
+                              Após esse tempo, será renovado automaticamente.
+                            </p>
+                          </div>
+                        )}
+                        
                         <Button 
-                          onClick={() => connectWhatsApp(connection.id)}
+                          onClick={() => simulateWhatsAppConnection(connection.id)}
                           size="sm"
-                          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                          variant="outline"
+                          className="w-full text-green-600 border-green-600 hover:bg-green-50"
                         >
-                          Simular Conexão
+                          Simular Conexão (Teste)
                         </Button>
                       </div>
                     </div>
@@ -231,18 +361,23 @@ const WhatsAppConnections = () => {
                   onChange={(e) => setNewConnectionName(e.target.value)}
                   placeholder="Ex: Vendas, Suporte, Principal..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onKeyPress={(e) => e.key === 'Enter' && addNewConnection()}
                 />
               </div>
               <div className="flex space-x-3">
                 <Button 
                   onClick={addNewConnection}
                   className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                  disabled={!newConnectionName.trim()}
                 >
                   Criar Conexão
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => setShowConnectionModal(false)}
+                  onClick={() => {
+                    setShowConnectionModal(false);
+                    setNewConnectionName('');
+                  }}
                   className="flex-1"
                 >
                   Cancelar
