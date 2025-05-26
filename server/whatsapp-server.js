@@ -27,6 +27,10 @@ app.post('/api/whatsapp/create', async (req, res) => {
   const { connectionId, name } = req.body;
   
   try {
+    if (!connectionId || !name) {
+      return res.status(400).json({ error: 'ConnectionId e name são obrigatórios' });
+    }
+
     if (whatsappClients.has(connectionId)) {
       return res.status(400).json({ error: 'Conexão já existe' });
     }
@@ -53,9 +57,11 @@ app.post('/api/whatsapp/create', async (req, res) => {
           '--disable-plugins',
           '--disable-background-timer-throttling',
           '--disable-renderer-backgrounding',
-          '--disable-backgrounding-occluded-windows'
+          '--disable-backgrounding-occluded-windows',
+          '--memory-pressure-off',
+          '--max_old_space_size=4096'
         ],
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
+        executablePath: '/nix/store/qlrdq4h8gdhvgqb3xnw9p0lgfz49qfzh-chromium-92.0.4515.159/bin/chromium'
       }
     });
 
@@ -100,7 +106,12 @@ app.post('/api/whatsapp/create', async (req, res) => {
       createdAt: new Date()
     });
 
-    await client.initialize();
+    // Inicializar cliente de forma assíncrona
+    client.initialize().catch(err => {
+      console.error(`Erro ao inicializar cliente ${connectionId}:`, err);
+      whatsappClients.delete(connectionId);
+      qrCodes.delete(connectionId);
+    });
 
     res.json({ 
       success: true, 
@@ -110,17 +121,26 @@ app.post('/api/whatsapp/create', async (req, res) => {
 
   } catch (error) {
     console.error('Erro ao criar conexão:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    // Limpar dados se houve erro
+    whatsappClients.delete(connectionId);
+    qrCodes.delete(connectionId);
+    res.status(500).json({ error: `Erro interno do servidor: ${error.message}` });
   }
 });
 
 // Rota para obter QR Code
 app.get('/api/whatsapp/qr/:connectionId', (req, res) => {
   const { connectionId } = req.params;
+  
+  // Verificar se a conexão existe
+  if (!whatsappClients.has(connectionId)) {
+    return res.status(404).json({ error: 'Conexão não encontrada' });
+  }
+  
   const qrCode = qrCodes.get(connectionId);
   
   if (!qrCode) {
-    return res.status(404).json({ error: 'QR Code não encontrado' });
+    return res.status(404).json({ error: 'QR Code ainda não foi gerado. Aguarde...' });
   }
   
   res.json({ qrCode });

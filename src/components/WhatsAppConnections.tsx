@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Plus, Smartphone, Wifi, WifiOff, QrCode, Trash2, RefreshCw } from 'lucide-react';
 import { whatsappService, WhatsAppConnection } from '@/services/whatsappService';
 import { toast } from 'sonner';
@@ -125,6 +125,9 @@ const WhatsAppConnections = () => {
               <QrCode className="w-5 h-5" />
               Conectar WhatsApp
             </DialogTitle>
+            <DialogDescription>
+              Escaneie o QR Code com seu WhatsApp para finalizar a conexão
+            </DialogDescription>
           </DialogHeader>
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-4">
