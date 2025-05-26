@@ -1,18 +1,20 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { MessageSquare, Bot, Check, Paperclip, Send, MoreHorizontal, User, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
+import { MessageSquare, Bot, Check, Paperclip, Send, MoreHorizontal, User, Mail, Phone, MapPin, Calendar, FileText, Plus, Trash2, QrCode, Smartphone } from 'lucide-react';
 
 const WhatsAppManager = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [connections, setConnections] = useState([]);
+  const [selectedConnection, setSelectedConnection] = useState(null);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
+  const [showConnectionModal, setShowConnectionModal] = useState(false);
+  const [newConnectionName, setNewConnectionName] = useState('');
 
   const tags = [
     { id: 'lead', name: 'Lead', color: 'bg-blue-100 text-blue-800' },
@@ -43,6 +45,7 @@ const WhatsAppManager = () => {
       status: 'lead',
       notes: 'Cliente interessada em produtos para cabelo cacheado. Trabalha na área de beleza.',
       address: 'São Paulo, SP',
+      connectionId: 1,
     },
     {
       id: 2,
@@ -57,6 +60,7 @@ const WhatsAppManager = () => {
       status: 'proposta',
       notes: 'Dono de salão. Interessado em compra em grande quantidade.',
       address: 'Santos, SP',
+      connectionId: 1,
     },
     {
       id: 3,
@@ -71,8 +75,44 @@ const WhatsAppManager = () => {
       status: 'fechado',
       notes: 'Cliente satisfeita. Possível indicação de novos clientes.',
       address: 'Campinas, SP',
+      connectionId: 2,
     },
   ];
+
+  const addNewConnection = () => {
+    if (newConnectionName.trim()) {
+      const newConnection = {
+        id: Date.now(),
+        name: newConnectionName,
+        phone: '',
+        isConnected: false,
+        qrCode: `qr-${Date.now()}`,
+        status: 'connecting'
+      };
+      setConnections([...connections, newConnection]);
+      setNewConnectionName('');
+      setShowConnectionModal(false);
+    }
+  };
+
+  const removeConnection = (connectionId) => {
+    setConnections(connections.filter(conn => conn.id !== connectionId));
+    if (selectedConnection?.id === connectionId) {
+      setSelectedConnection(null);
+    }
+  };
+
+  const connectWhatsApp = (connectionId) => {
+    setConnections(connections.map(conn => 
+      conn.id === connectionId 
+        ? { ...conn, isConnected: true, status: 'connected' }
+        : conn
+    ));
+  };
+
+  const filteredChats = selectedConnection 
+    ? chats.filter(chat => chat.connectionId === selectedConnection.id)
+    : [];
 
   const handleSendMessage = () => {
     if (messageText.trim()) {
@@ -105,29 +145,154 @@ const WhatsAppManager = () => {
       <div className="bg-white border-b border-gray-200 p-4 rounded-lg shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-              <span className="text-xs text-gray-500">Logo</span>
+            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+              <span className="text-xs text-white font-medium">LOGO</span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">WhatsApp Manager</h1>
-              <p className="text-gray-600">Gerencie suas conversas do WhatsApp</p>
+              <p className="text-gray-600">Gerencie múltiplas conexões do WhatsApp</p>
             </div>
           </div>
-          {isConnected && (
-            <Badge className="bg-green-100 text-green-800">WhatsApp Conectado</Badge>
-          )}
+          <div className="flex items-center space-x-3">
+            {selectedConnection && (
+              <Badge className="bg-green-100 text-green-800">
+                {selectedConnection.name} - Conectado
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 
-      {isConnected ? (
+      {/* Seção de Conexões WhatsApp */}
+      <Card className="p-6 border-0 shadow-lg bg-gradient-to-r from-green-50 to-blue-50">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+              <MessageSquare className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Conexões WhatsApp</h3>
+              <p className="text-gray-600">Gerencie múltiplos números do WhatsApp</p>
+            </div>
+          </div>
+          <Button 
+            onClick={() => setShowConnectionModal(true)}
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Conexão
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {connections.map((connection) => (
+            <Card key={connection.id} className="p-4 bg-white">
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-gray-900">{connection.name}</h4>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedConnection(connection)}
+                      className={selectedConnection?.id === connection.id ? 'bg-blue-50' : ''}
+                    >
+                      Selecionar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeConnection(connection.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {connection.isConnected ? (
+                  <div className="space-y-3">
+                    <Badge className="bg-green-100 text-green-800">Conectado</Badge>
+                    <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                      <Smartphone className="w-4 h-4" />
+                      <span>{connection.phone || 'Número não informado'}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="w-32 h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center mx-auto">
+                      <div className="text-center">
+                        <QrCode className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                        <span className="text-xs text-gray-500">QR Code</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Badge className="bg-yellow-100 text-yellow-800">Aguardando Conexão</Badge>
+                      <p className="text-xs text-gray-600">Escaneie o QR Code com seu celular</p>
+                      <Button 
+                        onClick={() => connectWhatsApp(connection.id)}
+                        size="sm"
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                      >
+                        Simular Conexão
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Card>
+
+      {/* Modal para Nova Conexão */}
+      {showConnectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="w-96 p-6 bg-white">
+            <h3 className="text-lg font-semibold mb-4">Nova Conexão WhatsApp</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome da Conexão
+                </label>
+                <input
+                  type="text"
+                  value={newConnectionName}
+                  onChange={(e) => setNewConnectionName(e.target.value)}
+                  placeholder="Ex: Vendas, Suporte, Principal..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <Button 
+                  onClick={addNewConnection}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                >
+                  Criar Conexão
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowConnectionModal(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Área Principal */}
+      {selectedConnection ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[650px]">
           <Card className="lg:col-span-1 p-4 border-0 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">Conversas</h3>
+              <h3 className="font-semibold text-gray-900">Conversas - {selectedConnection.name}</h3>
             </div>
 
             <div className="space-y-2 overflow-auto">
-              {chats.map((chat) => {
+              {filteredChats.map((chat) => {
                 return (
                   <div
                     key={chat.id}
@@ -387,34 +552,9 @@ const WhatsAppManager = () => {
         <div className="h-[650px] flex items-center justify-center">
           <div className="text-center">
             <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p className="text-gray-600">Conecte seu WhatsApp para começar</p>
+            <p className="text-gray-600">Selecione uma conexão para gerenciar as conversas</p>
           </div>
         </div>
-      )}
-
-      {/* Barra inferior com conexão WhatsApp */}
-      {!isConnected && (
-        <Card className="p-6 border-0 shadow-lg bg-gradient-to-r from-green-50 to-blue-50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Conecte seu WhatsApp</h3>
-                <p className="text-gray-600">Escaneie o QR Code com seu celular para iniciar</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-6">
-              <div className="w-32 h-32 bg-white border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                <span className="text-gray-500 text-sm">QR Code</span>
-              </div>
-              <Button onClick={() => setIsConnected(true)} className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700">
-                Simular Conexão
-              </Button>
-            </div>
-          </div>
-        </Card>
       )}
     </div>
   );
