@@ -9,8 +9,13 @@ const path = require('path');
 const app = express();
 const PORT = 3001;
 
-// Middleware
-app.use(cors());
+// Middleware - CORS configurado para Replit
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Armazenar instâncias dos clientes WhatsApp
@@ -32,7 +37,7 @@ app.post('/api/whatsapp/create', async (req, res) => {
         dataPath: path.join(__dirname, 'sessions')
       }),
       puppeteer: {
-        headless: true,
+        headless: 'new',
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -41,8 +46,16 @@ app.post('/api/whatsapp/create', async (req, res) => {
           '--no-first-run',
           '--no-zygote',
           '--single-process',
-          '--disable-gpu'
-        ]
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
+          '--disable-extensions',
+          '--disable-plugins',
+          '--disable-background-timer-throttling',
+          '--disable-renderer-backgrounding',
+          '--disable-backgrounding-occluded-windows'
+        ],
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
       }
     });
 
@@ -135,7 +148,14 @@ app.get('/api/whatsapp/status/:connectionId', async (req, res) => {
     return res.status(404).json({ error: 'Conexão não encontrada' });
   }
   
-  const isConnected = await clientData.client.getState() === 'CONNECTED';
+  let isConnected = false;
+  try {
+    const state = await clientData.client.getState();
+    isConnected = state === 'CONNECTED';
+  } catch (error) {
+    console.error('Erro ao verificar estado:', error);
+    isConnected = false;
+  }
   
   res.json({
     connectionId,
