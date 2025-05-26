@@ -141,16 +141,16 @@ const WhatsAppManager = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header com espaço para logo */}
+      {/* Header com logo no canto superior esquerdo */}
       <div className="bg-white border-b border-gray-200 p-4 rounded-lg shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
               <span className="text-xs text-white font-medium">LOGO</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">WhatsApp Manager</h1>
-              <p className="text-gray-600">Gerencie múltiplas conexões do WhatsApp</p>
+              <h1 className="text-xl font-bold text-gray-900">WhatsApp Manager</h1>
+              <p className="text-sm text-gray-600">Gerencie múltiplas conexões do WhatsApp</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -332,49 +332,39 @@ const WhatsAppManager = () => {
           <Card className="lg:col-span-2 p-4 border-0 shadow-lg">
             {selectedChat ? (
               <div className="h-full flex flex-col">
-                <div className="flex items-center justify-between pb-4 border-b border-gray-200">
-                  <div className="flex items-center space-x-3">
+                {/* Cabeçalho melhorado do chat */}
+                <div className="flex items-center justify-between pb-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4 mb-4">
+                  <div className="flex items-center space-x-4">
                     <button 
                       onClick={() => setIsContactSheetOpen(true)}
-                      className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center text-white font-medium hover:shadow-md transition-shadow"
+                      className="w-12 h-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center text-white font-semibold text-lg hover:shadow-lg transition-all"
                     >
                       {selectedChat.name.charAt(0)}
                     </button>
-                    <div>
+                    <div className="flex-1">
                       <button 
                         onClick={() => setIsContactSheetOpen(true)}
-                        className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                        className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors"
                       >
                         {selectedChat.name}
                       </button>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-600">Online</span>
-                        <Select value={selectedChat.status} onValueChange={(value) => updateChatTag(selectedChat.id, value)}>
-                          <SelectTrigger className="h-6 w-auto border-0 bg-transparent p-0 focus:ring-0">
-                            <Badge className={getTagInfo(selectedChat.status).color}>
-                              {getTagInfo(selectedChat.status).name}
-                            </Badge>
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border shadow-lg z-50">
-                            {tags.map(tag => (
-                              <SelectItem key={tag.id} value={tag.id}>
-                                <Badge className={tag.color}>{tag.name}</Badge>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="flex items-center space-x-3 mt-1">
+                        <span className="text-sm text-green-600 font-medium">Online</span>
+                        <Badge className={getTagInfo(selectedChat.status).color + " text-xs"}>
+                          {getTagInfo(selectedChat.status).name}
+                        </Badge>
                         {selectedChat.aiActive && (
-                          <Badge className="bg-blue-100 text-blue-800">IA Ativa</Badge>
+                          <Badge className="bg-blue-100 text-blue-800 text-xs">IA Ativa</Badge>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="text-xs">
                       {selectedChat.aiActive ? 'Desativar IA' : 'Ativar IA'}
                     </Button>
-                    <Button variant="outline" size="sm">
-                      Encerrar Atendimento
+                    <Button variant="outline" size="sm" className="text-xs">
+                      Encerrar
                     </Button>
                     <Sheet open={isContactSheetOpen} onOpenChange={setIsContactSheetOpen}>
                       <SheetTrigger asChild>
@@ -475,6 +465,7 @@ const WhatsAppManager = () => {
                   </div>
                 </div>
 
+                {/* Área de mensagens */}
                 <div className="flex-1 py-4 space-y-4 overflow-auto">
                   <div className="flex">
                     <div className="bg-gray-100 rounded-lg p-3 max-w-xs">
@@ -493,6 +484,7 @@ const WhatsAppManager = () => {
                   </div>
                 </div>
 
+                {/* Área de envio de mensagens */}
                 <div className="pt-4 border-t border-gray-200 space-y-3">
                   <div className="flex space-x-2">
                     <Select value={selectedTemplate} onValueChange={(value) => {
